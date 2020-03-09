@@ -10,7 +10,7 @@ import UIKit
 
 var count = 0
 
-class RSPlayCollectionViewCell: UICollectionViewCell, RSPlayCellProtocol {
+class RSPlayCollectionViewCell: RSPlayCellBase {
     
     let label = UILabel()
     let countlabel = UILabel()
@@ -43,9 +43,10 @@ class RSPlayCollectionViewCell: UICollectionViewCell, RSPlayCellProtocol {
         fatalError("init(coder:) has not been implemented")
     }
         
-    func update(withIndexPath indexPath: IndexPath, dataSourceElement: RSPlayCollectionCellRealExistence) {
-        label.text = "\(dataSourceElement)"
+    override func update(with: IndexPath, dataSourceElement: RSPlayModelBase) {
+        label.text = dataSourceElement.description
     }
+    
     
     class Background: UIView {
         

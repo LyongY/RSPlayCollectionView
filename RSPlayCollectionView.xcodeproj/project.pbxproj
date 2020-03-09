@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		195655D1241623E400F3CE07 /* RSPlayModelBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 195655CF241623E400F3CE07 /* RSPlayModelBase.m */; };
+		195655D2241623E400F3CE07 /* RSPlayCellBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 195655D0241623E400F3CE07 /* RSPlayCellBase.m */; };
 		195A3814240CE1C00038DDB9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 195A3813240CE1C00038DDB9 /* AppDelegate.swift */; };
 		195A3816240CE1C00038DDB9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 195A3815240CE1C00038DDB9 /* SceneDelegate.swift */; };
 		195A3818240CE1C00038DDB9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 195A3817240CE1C00038DDB9 /* ViewController.swift */; };
@@ -19,6 +21,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		195655CD241623E400F3CE07 /* RSPlayCellBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RSPlayCellBase.h; sourceTree = "<group>"; };
+		195655CE241623E400F3CE07 /* RSPlayModelBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RSPlayModelBase.h; sourceTree = "<group>"; };
+		195655CF241623E400F3CE07 /* RSPlayModelBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RSPlayModelBase.m; sourceTree = "<group>"; };
+		195655D0241623E400F3CE07 /* RSPlayCellBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RSPlayCellBase.m; sourceTree = "<group>"; };
+		195655D32416263F00F3CE07 /* OCRSPlayCollectionView-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OCRSPlayCollectionView-Bridging-Header.h"; sourceTree = "<group>"; };
 		195A3810240CE1C00038DDB9 /* RSPlayCollectionView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RSPlayCollectionView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		195A3813240CE1C00038DDB9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		195A3815240CE1C00038DDB9 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -30,6 +37,7 @@
 		195A3828240CE2060038DDB9 /* RSPlayCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSPlayCollectionView.swift; sourceTree = "<group>"; };
 		195A382A240CF8240038DDB9 /* RSPlayCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSPlayCollectionViewCell.swift; sourceTree = "<group>"; };
 		195A382C240D07410038DDB9 /* RSPlayCollectionLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSPlayCollectionLayout.swift; sourceTree = "<group>"; };
+		19A85ED0241632B60003CB74 /* RSPlayCollectionBridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RSPlayCollectionBridgingHeader.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,9 +70,11 @@
 		195A3812240CE1C00038DDB9 /* RSPlayCollectionView */ = {
 			isa = PBXGroup;
 			children = (
+				195655D32416263F00F3CE07 /* OCRSPlayCollectionView-Bridging-Header.h */,
 				195A3813240CE1C00038DDB9 /* AppDelegate.swift */,
 				195A3815240CE1C00038DDB9 /* SceneDelegate.swift */,
 				195A3817240CE1C00038DDB9 /* ViewController.swift */,
+				195A382A240CF8240038DDB9 /* RSPlayCollectionViewCell.swift */,
 				195A3827240CE1E60038DDB9 /* RSPlayCollectionView */,
 				195A3819240CE1C00038DDB9 /* Main.storyboard */,
 				195A381C240CE1C30038DDB9 /* Assets.xcassets */,
@@ -77,9 +87,13 @@
 		195A3827240CE1E60038DDB9 /* RSPlayCollectionView */ = {
 			isa = PBXGroup;
 			children = (
+				195655CD241623E400F3CE07 /* RSPlayCellBase.h */,
+				195655D0241623E400F3CE07 /* RSPlayCellBase.m */,
+				195655CE241623E400F3CE07 /* RSPlayModelBase.h */,
+				195655CF241623E400F3CE07 /* RSPlayModelBase.m */,
 				195A3828240CE2060038DDB9 /* RSPlayCollectionView.swift */,
 				195A382C240D07410038DDB9 /* RSPlayCollectionLayout.swift */,
-				195A382A240CF8240038DDB9 /* RSPlayCollectionViewCell.swift */,
+				19A85ED0241632B60003CB74 /* RSPlayCollectionBridgingHeader.h */,
 			);
 			path = RSPlayCollectionView;
 			sourceTree = "<group>";
@@ -155,6 +169,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				195655D1241623E400F3CE07 /* RSPlayModelBase.m in Sources */,
+				195655D2241623E400F3CE07 /* RSPlayCellBase.m in Sources */,
 				195A382B240CF8240038DDB9 /* RSPlayCollectionViewCell.swift in Sources */,
 				195A3818240CE1C00038DDB9 /* ViewController.swift in Sources */,
 				195A382D240D07410038DDB9 /* RSPlayCollectionLayout.swift in Sources */,
@@ -313,6 +329,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = LyongY.RSPlayCollectionView;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "RSPlayCollectionView/OCRSPlayCollectionView-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -331,6 +348,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = LyongY.RSPlayCollectionView;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "RSPlayCollectionView/OCRSPlayCollectionView-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

@@ -8,20 +8,6 @@
 
 import UIKit
 
-extension Bool: RSPlayCollectionCellRealExistence {
-    func realExistence() -> Bool {
-        self
-    }
-}
-
-protocol RSPlayCollectionCellRealExistence {
-    func realExistence() -> Bool
-}
-
-protocol RSPlayCellProtocol: UICollectionViewCell {
-    func update(withIndexPath indexPath: IndexPath, dataSourceElement: RSPlayCollectionCellRealExistence)
-}
-
 @objc protocol RSPlayCollectionViewDelegate: NSObjectProtocol {
     @objc optional func rsplayCollectionView(_ collectionView: RSPlayCollectionView, willDisappearArray: [Int])
     @objc optional func rsplayCollectionView(_ collectionView: RSPlayCollectionView, didDisappearArray: [Int])
@@ -51,7 +37,6 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
     var spliteMode: RSPlayCollectionView.SpliteMode {
         willSet {
             lastAppearArray = appearArray
-            delegate?.rsplayCollectionView?(self, willDisappearArray: lastAppearArray)
         }
         didSet {
             if spliteMode != .one {
@@ -68,8 +53,15 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
             reflashPageIndex()
             reflashTotalPage()
             
-            delegate?.rsplayCollectionView?(self, didAppearArray: appearArray)
-            delegate?.rsplayCollectionView?(self, didDisappearArray: lastAppearArray)
+            let disappearArray = lastAppearArray.filter { (item) -> Bool in
+                !appearArray.contains(item)
+            }
+            let currentAppearArray = appearArray.filter { (item) -> Bool in
+                !lastAppearArray.contains(item)
+            }
+            if disappearArray.count != 0 { delegate?.rsplayCollectionView?(self, willDisappearArray: disappearArray) }
+            if currentAppearArray.count != 0 { delegate?.rsplayCollectionView?(self, didAppearArray: currentAppearArray) }
+            if disappearArray.count != 0 { delegate?.rsplayCollectionView?(self, didDisappearArray: disappearArray) }
             lastAppearArray = appearArray
         }
     }
@@ -87,10 +79,9 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
     }
     private lazy var collectionView = UICollectionView(frame: .init(x: 0, y: 0, width: 100, height: 100), collectionViewLayout: layout)
 
-    private var registClass: RSPlayCellProtocol.Type // 单元格所使用的类
-    private var realDataSource: Array<Bool> = [] // collectionView用的
+    private var registClass: RSPlayCellBase.Type // 单元格所使用的类
     private var filterDataSource: Array<Bool> // 切屏用的无多余无用的数据源
-    private var dataSourceCountChanged: (Int) -> Void // 需增加数据源的回调
+    private var emptyElement: () -> RSPlayModelBase // 需增加数据源的回调
 
     private (set) var totalPage: Int {
         didSet {
@@ -120,8 +111,8 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
     private var lastSplitMode: RSPlayCollectionView.SpliteMode = .four // 上一次的分屏模式, 用于双击放大后, 再次双击恢复
     private var lastDataSourceCount: Int // 布局改变, 用来判断是否需补充数据源
 
-    init(_ dataSource: RSArray, registClass: RSPlayCellProtocol.Type, dataSourceCountChanged: @escaping (_ allCount: Int) -> Void) {
-        self.dataSourceCountChanged = dataSourceCountChanged
+    init(_ dataSource: RSArray, registClass: RSPlayCellBase.Type, emptyElement: @escaping () -> RSPlayModelBase) {
+        self.emptyElement = emptyElement
         self.registClass = registClass
         self.dataSource = dataSource
         filterDataSource = RSPlayCollectionView.filterRealExistence(dataSource.array)
@@ -134,8 +125,8 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
         self.resetData()
     }
     
-    convenience init(_ dataSource: RSArray, registClass: RSPlayCellProtocol.Type, spliteModel: RSPlayCollectionView.SpliteMode, selectedIndex: Int, delegate: RSPlayCollectionViewDelegate?, dataSourceCountChanged: @escaping (_ allCount: Int) -> Void) {
-        self.init(dataSource, registClass: registClass, dataSourceCountChanged: dataSourceCountChanged)
+    @objc convenience init(_ dataSource: RSArray, registClass: RSPlayCellBase.Type, spliteModel: RSPlayCollectionView.SpliteMode, selectedIndex: Int, delegate: RSPlayCollectionViewDelegate?, emptyElement: @escaping () -> RSPlayModelBase) {
+        self.init(dataSource, registClass: registClass, emptyElement: emptyElement)
         resizabrrr(spliteModel: spliteModel, selectedIndex: selectedIndex, delegate: delegate)
     }
     
@@ -381,7 +372,7 @@ extension RSPlayCollectionView {
 
 // MARK:- Help
 extension RSPlayCollectionView {
-    private static func filterRealExistence(_ array: [RSPlayCollectionCellRealExistence]) -> [Bool] {
+    private static func filterRealExistence(_ array: [RSPlayModelBase]) -> [Bool] {
         var temp = Array(array)
         while true {
             if let last = temp.last {
@@ -437,11 +428,9 @@ extension RSPlayCollectionView {
     }
     
     private func reflashFilterAndRealDataSource() {
-        realDataSource = dataSource.array.map { $0.realExistence() }
-        filterDataSource = Array(realDataSource)
         while true {
             if let last = filterDataSource.last {
-                if last.realExistence() {
+                if last {
                     break
                 }
             } else {
@@ -482,20 +471,20 @@ extension RSPlayCollectionView {
         let count = filterDataSource.count
         let increase = needToIncreaseCount()
         let allCount = count + increase
-        if lastDataSourceCount != allCount {
+        if lastDataSourceCount > allCount { // 删掉多的空的
+            dataSource.array.removeLast(lastDataSourceCount - allCount)
             lastDataSourceCount = allCount
-            dataSourceCountChanged(allCount)
         }
-        realDataSource.removeAll()
-        for index in 0 ..< allCount {
-            realDataSource.append(index < count)
+        while dataSource.array.count < allCount {
+            dataSource.array.append(emptyElement())
         }
+        lastDataSourceCount = allCount
         return allCount
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RSPlayCellProtocol
-        cell.update(withIndexPath: indexPath, dataSourceElement: dataSource.array[indexPath.item])
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RSPlayCellBase
+        cell.update(with: indexPath, dataSourceElement: dataSource.array[indexPath.item])
         return cell
     }
     
@@ -515,7 +504,7 @@ extension RSPlayCollectionView {
 
 // MARK:- 类
 extension RSPlayCollectionView {
-    enum SpliteMode: Int {
+    @objc enum SpliteMode: Int {
         case one = 1
         case four = 4
         case six = 6
@@ -548,10 +537,10 @@ extension RSPlayCollectionView {
     }
 }
 
-class RSArray {
-    var array: Array<RSPlayCollectionCellRealExistence>
+@objc class RSArray: NSObject {
+    @objc var array: Array<RSPlayModelBase>
     
-    init(with array: Array<RSPlayCollectionCellRealExistence>) {
+    @objc init(with array: Array<RSPlayModelBase>) {
         self.array = array
     }
 }

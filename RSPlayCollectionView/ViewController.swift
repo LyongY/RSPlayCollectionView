@@ -8,15 +8,19 @@
 
 import UIKit
 
-extension Int: RSPlayCollectionCellRealExistence {
-    func realExistence() -> Bool {
-        self <= 10
+class Model: RSPlayModelBase {
+    var num: Int
+    
+    init(num: Int) {
+        self.num = num
     }
-}
-
-extension Double: RSPlayCollectionCellRealExistence {
-    func realExistence() -> Bool {
-        return self <= 7.0
+    
+    override func realExistence() -> Bool {
+        num <= 10
+    }
+    
+    override var description: String {
+        "\(num)"
     }
 }
 
@@ -25,35 +29,24 @@ class ViewController: UIViewController {
     var collection: RSPlayCollectionView!
     
     var array = RSArray(with: [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
+        Model(num: 1),
+        Model(num: 2),
+        Model(num: 3),
+        Model(num: 4),
+        Model(num: 5),
+        Model(num: 6),
+        Model(num: 7),
+        Model(num: 8),
+        Model(num: 9),
+        Model(num: 10),
+        Model(num: 11),
     ])
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-//        collection = RSPlayCollectionView(array, registClass: RSPlayCollectionViewCell.self, dataSourceCountChanged: { allCount in
-//            while allCount > self.array.array.count {
-//                self.array.array.append(9999)
-//            }
-//        })
-//        collection.spliteMode = .four
-//        collection.setSelectedIndex(5)
-//        collection.delegate = self
 
-        collection = RSPlayCollectionView(array, registClass: RSPlayCollectionViewCell.self, spliteModel: .four, selectedIndex: 5, delegate: self, dataSourceCountChanged: { (allCount) in
-            while allCount > self.array.array.count {
-                self.array.array.append(9999)
-            }
+        collection = RSPlayCollectionView(array, registClass: RSPlayCollectionViewCell.self, spliteModel: .four, selectedIndex: 5, delegate: self, emptyElement: {
+            Model(num: 9999)
         })
         
         collection.translatesAutoresizingMaskIntoConstraints = false
@@ -102,7 +95,8 @@ extension ViewController: RSPlayCollectionViewDelegate {
     
     func rsplayCollectionView(_ collectionView: RSPlayCollectionView, cleanIndex: Int) {
         print("delete: \(cleanIndex)")
-        array.array[cleanIndex] = 9999
+        let rr = array.array[cleanIndex] as! Model
+        rr.num = 9999
     }
 }
 
