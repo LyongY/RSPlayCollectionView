@@ -34,11 +34,15 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
         }
     }
     
+    private var maxSpliteMode: RSPlayCollectionView.SpliteMode
     var spliteMode: RSPlayCollectionView.SpliteMode {
         willSet {
             lastAppearArray = appearArray
         }
         didSet {
+            if spliteMode.rawValue > maxSpliteMode.rawValue {
+                spliteMode = maxSpliteMode
+            }
             if spliteMode != .one {
                 lastSplitMode = spliteMode
             }
@@ -111,10 +115,11 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
     private var lastSplitMode: RSPlayCollectionView.SpliteMode = .four // 上一次的分屏模式, 用于双击放大后, 再次双击恢复
     private var lastDataSourceCount: Int // 布局改变, 用来判断是否需补充数据源
 
-    init(_ dataSource: RSArray, registClass: RSPlayCellBase.Type, emptyElement: @escaping () -> RSPlayModelBase) {
+    init(_ dataSource: RSArray, registClass: RSPlayCellBase.Type, maxSpliteMode: RSPlayCollectionView.SpliteMode, emptyElement: @escaping () -> RSPlayModelBase) {
         self.emptyElement = emptyElement
         self.registClass = registClass
         self.dataSource = dataSource
+        self.maxSpliteMode = maxSpliteMode
         filterDataSource = RSPlayCollectionView.filterRealExistence(dataSource.array)
         spliteMode = .one
         totalPage = 1
@@ -125,8 +130,8 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
         self.resetData()
     }
     
-    @objc convenience init(_ dataSource: RSArray, registClass: RSPlayCellBase.Type, spliteModel: RSPlayCollectionView.SpliteMode, selectedIndex: Int, delegate: RSPlayCollectionViewDelegate?, emptyElement: @escaping () -> RSPlayModelBase) {
-        self.init(dataSource, registClass: registClass, emptyElement: emptyElement)
+    @objc convenience init(_ dataSource: RSArray, registClass: RSPlayCellBase.Type, maxSpliteMode: RSPlayCollectionView.SpliteMode, spliteModel: RSPlayCollectionView.SpliteMode, selectedIndex: Int, delegate: RSPlayCollectionViewDelegate?, emptyElement: @escaping () -> RSPlayModelBase) {
+        self.init(dataSource, registClass: registClass, maxSpliteMode: maxSpliteMode, emptyElement: emptyElement)
         resizabrrr(spliteModel: spliteModel, selectedIndex: selectedIndex, delegate: delegate)
     }
     
@@ -150,7 +155,7 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
     }
         
     private func setupSubviews() {
-        collectionView.backgroundColor = .groupTableViewBackground
+        collectionView.backgroundColor = .clear
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.isPagingEnabled = true
         collectionView.register(registClass, forCellWithReuseIdentifier: "cell")
@@ -253,7 +258,7 @@ extension RSPlayCollectionView {
                     return
                 }
                 self.setSelectedIndex(indexPath.item)
-                collectionView.beginInteractiveMovementForItem(at: indexPath)
+//                collectionView.beginInteractiveMovementForItem(at: indexPath)
                 beginDragCell = cell
                 
                 cell.isHidden = true
@@ -266,11 +271,10 @@ extension RSPlayCollectionView {
                 
                 deleteView.state = pointInDeleteView ? .in : .out
             case .changed:
-                collectionView.updateInteractiveMovementTargetPosition(point)
+//                collectionView.updateInteractiveMovementTargetPosition(point)
                 dragView.center = point
                 deleteView.state = pointInDeleteView ? .in : .out
             case .ended:
-                
                 if pointInDeleteView {
                     if let pressIndex = collectionView.indexPathsForSelectedItems?.first?.item {
                         delegate?.rsplayCollectionView?(self, cleanIndex: pressIndex)
@@ -278,6 +282,9 @@ extension RSPlayCollectionView {
                         self.beginDragCell = nil
                         self.dragView.removeFromSuperview()
                         collectionView.cancelInteractiveMovement()
+                        if let cell = collectionView.cellForItem(at: IndexPath(item: pressIndex, section: 0)) {
+                            cell.isHidden = false
+                        }
                         deleteView.state = .inactive
                         collectionView.reloadItems(at: [IndexPath(item: pressIndex, section: 0)])
                         return
@@ -304,6 +311,21 @@ extension RSPlayCollectionView {
                 guard let endIndex = optionEndIndex  else {
                     self.beginDragCell = nil
                     self.dragView.removeFromSuperview()
+                    collectionView.cancelInteractiveMovement()
+                    if let pressIndex = collectionView.indexPathsForSelectedItems?.first?.item,
+                        let cell = collectionView.cellForItem(at: IndexPath(item: pressIndex, section: 0)) {
+                        cell.isHidden = false
+                    }
+                    return
+                }
+                if !appearArray.contains(endIndex) {
+                    self.beginDragCell = nil
+                    self.dragView.removeFromSuperview()
+                    collectionView.cancelInteractiveMovement()
+                    if let pressIndex = collectionView.indexPathsForSelectedItems?.first?.item,
+                        let cell = collectionView.cellForItem(at: IndexPath(item: pressIndex, section: 0)) {
+                        cell.isHidden = false
+                    }
                     return
                 }
                 let endIndexPath = IndexPath(item: endIndex, section: 0)
@@ -314,11 +336,22 @@ extension RSPlayCollectionView {
                 collectionView.superview?.addSubview(self.dragView)
                 self.dragView.frame = supperStartRect
 
+//                let pressIndex = self.collectionView.indexPathsForSelectedItems!.first!.item
+
                 UIView.animate(withDuration: 0.3, animations: {
                     self.dragView.frame = supperEndRect
                 }) { (finish) in
                     self.beginDragCell = nil
                     self.dragView.removeFromSuperview()
+                    if let pressIndex = self.collectionView.indexPathsForSelectedItems?.first?.item,
+                        let cell = self.collectionView.cellForItem(at: IndexPath(item: pressIndex, section: 0)) {
+                        cell.isHidden = false
+                        let pressDataSource = self.dataSource.array[pressIndex]
+                        self.dataSource.array[pressIndex] = self.dataSource.array[endIndex]
+                        self.dataSource.array[endIndex] = pressDataSource
+                        self.filterDataSource = RSPlayCollectionView.filterRealExistence(self.dataSource.array)
+                        self.collectionView.reloadData()
+                    }
                 }
 
                 collectionView.endInteractiveMovement()
@@ -451,12 +484,13 @@ extension RSPlayCollectionView {
 
 // MARK:- CollectionViewDelegate
 extension RSPlayCollectionView {
+    // MARK: 交换位置, 不再采用插入
     func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveFromItemAt originalIndexPath: IndexPath, toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
         return proposedIndexPath
     }
     
     func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
-        return true
+        return false
     }
     
     func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
@@ -467,6 +501,7 @@ extension RSPlayCollectionView {
         delegate?.rsplayCollectionView?(self, selectedItem: sourceIndexPath.item, moveTo: destinationIndexPath.item)
     }
 
+    // MARK: delegate
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let count = filterDataSource.count
         let increase = needToIncreaseCount()

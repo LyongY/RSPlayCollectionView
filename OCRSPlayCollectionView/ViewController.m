@@ -39,7 +39,7 @@
                    ];
     
     
-    RSPlayCollectionView *collection = [[RSPlayCollectionView alloc] init:_dataSource registClass:CollectionViewCell.class spliteModel:SpliteModeFour selectedIndex:5 delegate:self emptyElement:^RSPlayModelBase * _Nonnull{
+    RSPlayCollectionView *collection = [[RSPlayCollectionView alloc] init:_dataSource registClass:CollectionViewCell.class maxSpliteMode:SpliteModeFour spliteModel:SpliteModeFour selectedIndex:2 delegate:self emptyElement:^RSPlayModelBase * _Nonnull{
         return [[Model alloc] initWithNum:999];
     }];
     

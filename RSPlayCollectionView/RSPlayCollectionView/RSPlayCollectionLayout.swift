@@ -44,7 +44,7 @@ class RSPlayCollectionLayout: UICollectionViewLayout {
         let temp = arr.filter { (attr) -> Bool in
             CGRect(x: offsetX, y: 0, width: width, height: height).intersects(attr.frame)
         }
-        return temp
+        return arr
     }
     
     override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {

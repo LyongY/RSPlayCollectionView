@@ -45,7 +45,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        collection = RSPlayCollectionView(array, registClass: RSPlayCollectionViewCell.self, spliteModel: .four, selectedIndex: 5, delegate: self, emptyElement: {
+        collection = RSPlayCollectionView(array, registClass: RSPlayCollectionViewCell.self, maxSpliteMode: .eight, spliteModel: .four, selectedIndex: 5, delegate: self, emptyElement: {
             Model(num: 9999)
         })
         
