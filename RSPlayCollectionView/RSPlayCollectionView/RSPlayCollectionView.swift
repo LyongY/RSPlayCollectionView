@@ -35,7 +35,7 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
     }
     
     private var maxSpliteMode: RSPlayCollectionView.SpliteMode
-    var spliteMode: RSPlayCollectionView.SpliteMode {
+    @objc var spliteMode: RSPlayCollectionView.SpliteMode {
         willSet {
             lastAppearArray = appearArray
         }
@@ -46,6 +46,7 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
             if spliteMode != .one {
                 lastSplitMode = spliteMode
             }
+            longPress.isEnabled = spliteMode != .one
             var selectedIndex = collectionView.indexPathsForSelectedItems?.first?.item ?? 0
             if selectedIndex >= filterDataSource.count {
                 selectedIndex = filterDataSource.count - 1
@@ -56,6 +57,14 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
             
             reflashPageIndex()
             reflashTotalPage()
+            
+            let appearIndexPathArray = appearArray.map { (index) in
+                IndexPath(item: index, section: 0)
+            }
+            appearIndexPathArray.forEach { (indexPath) in
+                let cell = collectionView.cellForItem(at: indexPath) as? RSPlayCellBase
+                cell?.update(with: self, indexPath: indexPath, dataSourceElement: dataSource.array[indexPath.item])
+            }
             
             let disappearArray = lastAppearArray.filter { (item) -> Bool in
                 !appearArray.contains(item)
@@ -154,6 +163,7 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
         }
     }
         
+    private var longPress: UILongPressGestureRecognizer!
     private func setupSubviews() {
         collectionView.backgroundColor = .clear
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -169,7 +179,7 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
             collectionView.rightAnchor.constraint(equalTo: self.rightAnchor),
         ])
         
-        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressMoving(longPress:)))
+        longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressMoving(longPress:)))
         collectionView.addGestureRecognizer(longPress)
         
         let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTap(doubleTapGesture:)))
@@ -200,7 +210,7 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
 // MARK:- 交互
 extension RSPlayCollectionView {
     // MARK: 设置选中
-    func setSelectedIndex(_ index: Int) {
+    @objc func setSelectedIndex(_ index: Int) {
         lastAppearArray = appearArray
         
         if let lastSelectedIndex = collectionView.indexPathsForSelectedItems?.first?.item {
@@ -519,7 +529,7 @@ extension RSPlayCollectionView {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RSPlayCellBase
-        cell.update(with: indexPath, dataSourceElement: dataSource.array[indexPath.item])
+        cell.update(with: self, indexPath: indexPath, dataSourceElement: dataSource.array[indexPath.item])
         return cell
     }
     

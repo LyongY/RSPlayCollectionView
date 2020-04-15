@@ -10,7 +10,7 @@
 
 @implementation RSPlayCellBase
 
-- (void)updateWith:(NSIndexPath *)indexPath dataSourceElement:(RSPlayModelBase *)element {
+- (void)updateWithRSPlayCollectionView:(RSPlayCollectionView *)collection indexPath:(NSIndexPath *)indexPath dataSourceElement:(RSPlayModelBase *)element {
     NSString *str = [NSString stringWithFormat:@"%@ 需要重写此方法", NSStringFromClass([self class])];
     NSAssert(NO, str);
 }

@@ -7,6 +7,7 @@
 //
 
 #import "CollectionViewCell.h"
+#import <OCRSPlayCollectionView-Swift.h>
 
 @interface CollectionViewCell()
 
@@ -43,7 +44,7 @@
     return view;
 }
 
-- (void)updateWith:(NSIndexPath *)indexPath dataSourceElement:(RSPlayModelBase *)element {
+- (void)updateWithRSPlayCollectionView:(RSPlayCollectionView *)collection indexPath:(NSIndexPath *)indexPath dataSourceElement:(RSPlayModelBase *)element {
     self.label.text = [NSString stringWithFormat:@"%@", element];
 }
 

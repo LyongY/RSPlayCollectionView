@@ -43,10 +43,10 @@ class RSPlayCollectionViewCell: RSPlayCellBase {
         fatalError("init(coder:) has not been implemented")
     }
         
-    override func update(with: IndexPath, dataSourceElement: RSPlayModelBase) {
-        label.text = dataSourceElement.description
+    override func update(with collection: RSPlayCollectionView!, indexPath: IndexPath!, dataSourceElement element: RSPlayModelBase!) {
+        label.text = element.description
+        print("==--==-\(indexPath) split \(collection.spliteMode.rawValue)")
     }
-    
     
     class Background: UIView {
         

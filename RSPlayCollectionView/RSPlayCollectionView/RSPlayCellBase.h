@@ -8,11 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@class RSPlayModelBase;
+@class RSPlayModelBase, RSPlayCollectionView;
 
 @protocol RSPlayCellClassProtocol <NSObject>
 
-- (void)updateWith:(NSIndexPath *)indexPath dataSourceElement:(RSPlayModelBase *)element;
+- (void)updateWithRSPlayCollectionView:(RSPlayCollectionView *)collection indexPath:(NSIndexPath *)indexPath dataSourceElement:(RSPlayModelBase *)element;
 
 @end
 
