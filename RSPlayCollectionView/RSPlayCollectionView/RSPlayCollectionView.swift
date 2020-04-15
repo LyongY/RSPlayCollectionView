@@ -79,6 +79,12 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
         }
     }
     
+    @objc var currentCellModels: [RSPlayModelBase] { // 当前出现在CollectionView上的的CellModels
+        appearArray.map { (index) in
+            dataSource.array[index]
+        }
+    }
+    
     var dataSource: RSArray {
         didSet {
             filterDataSource = RSPlayCollectionView.filterRealExistence(dataSource.array)
@@ -356,11 +362,16 @@ extension RSPlayCollectionView {
                     if let pressIndex = self.collectionView.indexPathsForSelectedItems?.first?.item,
                         let cell = self.collectionView.cellForItem(at: IndexPath(item: pressIndex, section: 0)) {
                         cell.isHidden = false
+                        self.delegate?.rsplayCollectionView?(self, deselectIndex: pressIndex)
                         let pressDataSource = self.dataSource.array[pressIndex]
                         self.dataSource.array[pressIndex] = self.dataSource.array[endIndex]
                         self.dataSource.array[endIndex] = pressDataSource
                         self.filterDataSource = RSPlayCollectionView.filterRealExistence(self.dataSource.array)
                         self.collectionView.reloadData()
+                        // reloadData后, 选中会被清除
+                        self.collectionView.selectItem(at: endIndexPath, animated: false, scrollPosition: .left)
+                        self.collectionView.contentOffset = .init(x: CGFloat(endIndex / self.spliteMode.rawValue) * self.collectionView.bounds.size.width, y: 0)
+                        self.delegate?.rsplayCollectionView?(self, selectIndex: endIndex)
                     }
                 }
 
