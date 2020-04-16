@@ -67,7 +67,7 @@ class RSPlayCollectionView: UIView, UICollectionViewDataSource, UICollectionView
             }
             
             let disappearArray = lastAppearArray.filter { (item) -> Bool in
-                !appearArray.contains(item)
+                !appearArray.contains(item) && filterDataSource.count > item
             }
             let currentAppearArray = appearArray.filter { (item) -> Bool in
                 !lastAppearArray.contains(item)

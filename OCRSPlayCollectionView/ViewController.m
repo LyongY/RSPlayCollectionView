@@ -32,9 +32,9 @@
         [[Model alloc] initWithNum:7],
         [[Model alloc] initWithNum:8],
         [[Model alloc] initWithNum:9],
-        [[Model alloc] initWithNum:10],
-    [[Model alloc] initWithNum:11],
-    [[Model alloc] initWithNum:12],
+//        [[Model alloc] initWithNum:10],
+//    [[Model alloc] initWithNum:11],
+//    [[Model alloc] initWithNum:12],
     ].mutableCopy
                    ];
     
